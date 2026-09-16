@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Birthday</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+
+        #intro {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            z-index: 10;
+        }
+
+        #introText {
+            font-size: 24px;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        #scene {
+            width: 100vw;
+            height: 100vh;
+            opacity: 0;
+            transition: opacity 2s ease;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="intro">
+        <div id="introText"></div>
+    </div>
+
+    <div id="scene"></div>
+
+    <script type="module">
+
+        import * as THREE from
+        "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
+
+
+        // =========================
+        // INTRO
+        // =========================
+
+        const intro = document.getElementById("intro");
+        const introText = document.getElementById("introText");
+        const sceneContainer = document.getElementById("scene");
+
+
+        function showText(text, duration = 1800) {
+
+            return new Promise(resolve => {
+
+                introText.textContent = text;
+
+                introText.style.opacity = "1";
+
+                setTimeout(() => {
+
+                    introText.style.opacity = "0";
+
+                    setTimeout(resolve, 1000);
+
+                }, duration);
+
+            });
+        }
+
+
+        async function startIntro() {
+
+            await showText("Hey...");
+
+            await showText("I made something for you.");
+
+            await showText("Hope you like it.");
+
+            intro.style.opacity = "0";
+
+            setTimeout(() => {
+
+                intro.style.display = "none";
+
+                sceneContainer.style.opacity = "1";
+
+            }, 1000);
+        }
+
+
+        // =========================
+        // THREE.JS SCENE
+        // =========================
+
+        const scene = new THREE.Scene();
+
+        scene.background = new THREE.Color(0x000000);
+
+
+        // CAMERA
+
+        const camera = new THREE.PerspectiveCamera(
+            45,
+            window.innerWidth / window.innerHeight,
+            0.1,
+            100
+        );
+
+        camera.position.set(0, 2.5, 6);
+
+
+        // RENDERER
+
+        const renderer = new THREE.WebGLRenderer({
+            antialias: true,
+            powerPreference: "high-performance"
+        });
+
+        renderer.setPixelRatio(
+            Math.min(window.devicePixelRatio, 2)
+        );
+
+        renderer.setSize(
+            window.innerWidth,
+            window.innerHeight
+        );
+
+        sceneContainer.appendChild(renderer.domElement);
+
+
+        // =========================
+        // LIGHT
+        // =========================
+
+        const ambientLight = new THREE.AmbientLight(
+            0xffffff,
+            2
+        );
+
+        scene.add(ambientLight);
+
+
+        // =========================
+        // TEMPORARY CAKE
+        // =========================
+
+        const cakeGeometry =
+            new THREE.CylinderGeometry(
+                1.5,
+                1.5,
+                1.2,
+                48
+            );
+
+        const cakeMaterial =
+            new THREE.MeshStandardMaterial({
+                color: 0xf2e3d5
+            });
+
+        const cake =
+            new THREE.Mesh(
+                cakeGeometry,
+                cakeMaterial
+            );
+
+        cake.position.y = 0;
+
+        scene.add(cake);
+
+
+        // =========================
+        // FLOOR
+        // =========================
+
+        const floorGeometry =
+            new THREE.CircleGeometry(5, 48);
+
+        const floorMaterial =
+            new THREE.MeshStandardMaterial({
+                color: 0x080808
+            });
+
+        const floor =
+            new THREE.Mesh(
+                floorGeometry,
+                floorMaterial
+            );
+
+        floor.rotation.x = -Math.PI / 2;
+        floor.position.y = -0.65;
+
+        scene.add(floor);
+
+
+        // =========================
+        // ANIMATION LOOP
+        // =========================
+
+        function animate() {
+
+            requestAnimationFrame(animate);
+
+            cake.rotation.y += 0.003;
+
+            renderer.render(
+                scene,
+                camera
+            );
+        }
+
+        animate();
+
+
+        // =========================
+        // RESPONSIVE
+        // =========================
+
+        window.addEventListener(
+            "resize",
+            () => {
+
+                camera.aspect =
+                    window.innerWidth /
+                    window.innerHeight;
+
+                camera.updateProjectionMatrix();
+
+                renderer.setSize(
+                    window.innerWidth,
+                    window.innerHeight
+                );
+
+            }
+        );
+
+
+        // START
+
+        startIntro();
+
+    </script>
+
+</body>
+  </html>
